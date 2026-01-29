@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SignInButton } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -18,6 +18,8 @@ const MenuOptions = [
 ];
 
 const Header = (props: Props) => {
+  const { user } = useUser();
+
   return (
     <div className="flex items-center justify-between p-4 shadow">
       {/* Logo  X */}
@@ -36,9 +38,17 @@ const Header = (props: Props) => {
       {/* Get Started Button */}
       <div>
         <Button>
-          <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
-            Get Started <ArrowRight />
-          </SignInButton>
+          {!user ? (
+            <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
+              Get Started <ArrowRight />
+            </SignInButton>
+          ) : (
+            <Link href={"/workspace"}>
+              <Button>
+                Get Started <ArrowRight />
+              </Button>
+            </Link>
+          )}
         </Button>
       </div>
     </div>
