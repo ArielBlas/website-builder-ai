@@ -1,9 +1,14 @@
 import React from "react";
+import Hero from "../_components/Hero";
 
 type Props = {};
 
 const Workspace = (props: Props) => {
-  return <div>Workspace</div>;
+  return (
+    <div>
+      <Hero />
+    </div>
+  );
 };
 
 export default Workspace;
