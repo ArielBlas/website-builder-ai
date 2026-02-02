@@ -22,7 +22,7 @@ export const projectTable = pgTable("projects", {
 
 export const frameTable = pgTable("frames", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  frameType: varchar(),
+  frameId: varchar(),
   projectId: varchar().references(() => projectTable.projectId),
   createdOn: timestamp().defaultNow(),
 });
