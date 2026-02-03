@@ -1,15 +1,20 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { SignInButton } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
+import axios from "axios";
 import {
   ArrowUp,
   HomeIcon,
   ImagePlus,
   Key,
   LayoutDashboard,
+  Loader2Icon,
   User,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
 type Props = {};
 
@@ -40,8 +45,45 @@ const suggestions = [
   },
 ];
 
+const generateRandomFrameNumber = () => {
+  const num = Math.floor(Math.random() * 10000);
+  return num;
+};
+
 const Hero = (props: Props) => {
   const [userInput, setUserInput] = useState<string>("");
+  const { user } = useUser();
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const CreateNewProject = async () => {
+    setLoading(true);
+    const projectId = uuidv4();
+    const frameId = generateRandomFrameNumber();
+    const messages = [
+      {
+        role: "user",
+        content: userInput,
+      },
+    ];
+    try {
+      const result = await axios.post("/api/projects", {
+        projectId: projectId,
+        frameId: frameId,
+        messages: messages,
+      });
+      console.log(result.data);
+      toast.success("Project created!");
+      // Navigate to Playground
+      router.push(`/playground/${projectId}?frameId=${frameId}`);
+    } catch (error) {
+      toast.error("Internal Server Error");
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center h-[80vh] justify-center">
       {/* Header & description */}
@@ -61,11 +103,20 @@ const Hero = (props: Props) => {
           <Button variant={"ghost"}>
             <ImagePlus />
           </Button>
-          <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
-            <Button disabled={!userInput.trim()}>
-              <ArrowUp />
+          {!user ? (
+            <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
+              <Button disabled={!userInput.trim()}>
+                <ArrowUp />
+              </Button>
+            </SignInButton>
+          ) : (
+            <Button
+              disabled={!userInput.trim() || loading}
+              onClick={CreateNewProject}
+            >
+              {loading ? <Loader2Icon className="animate-spin" /> : <ArrowUp />}
             </Button>
-          </SignInButton>
+          )}
         </div>
       </div>
       {/* suggestion list */}
