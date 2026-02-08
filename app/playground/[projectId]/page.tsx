@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PlaygroundHeader from "../_components/PlaygroundHeader";
 import ChatSection from "../_components/ChatSection";
 import WebsiteDesign from "../_components/WebsiteDesign";
@@ -8,10 +8,23 @@ import axios from "axios";
 
 type Props = {};
 
+export type Frame = {
+  projectId: string;
+  frameId: string;
+  designCode: string;
+  chatMessages: Messages[];
+};
+
+export type Messages = {
+  role: string;
+  content: string;
+};
+
 const Playground = (props: Props) => {
   const { projectId } = useParams();
   const params = useSearchParams();
   const frameId = params.get("frameId");
+  const [frameDetail, setFrameDetail] = useState<Frame | null>(null);
 
   useEffect(() => {
     if (frameId) GetFrameDetails();
@@ -22,7 +35,10 @@ const Playground = (props: Props) => {
       "/api/frames?frameId=" + frameId + "&projectId=" + projectId,
     );
     console.log(result.data);
+    setFrameDetail(result.data);
   };
+
+  const SendMessage = async (message: string) => {};
 
   return (
     <div>
@@ -30,7 +46,10 @@ const Playground = (props: Props) => {
 
       <div className="flex">
         {/* ChatSection */}
-        <ChatSection />
+        <ChatSection
+          messages={frameDetail?.chatMessages ?? []}
+          onSend={SendMessage}
+        />
 
         {/* WebsiteDesign */}
         <WebsiteDesign />
