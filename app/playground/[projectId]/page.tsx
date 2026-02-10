@@ -25,6 +25,9 @@ const Playground = (props: Props) => {
   const params = useSearchParams();
   const frameId = params.get("frameId");
   const [frameDetail, setFrameDetail] = useState<Frame | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [messages, setMessages] = useState<Messages[]>([]);
+  const [generatedCode, setGeneratedCode] = useState<string>("");
 
   useEffect(() => {
     if (frameId) GetFrameDetails();
@@ -38,7 +41,56 @@ const Playground = (props: Props) => {
     setFrameDetail(result.data);
   };
 
-  const SendMessage = async (message: string) => {};
+  const SendMessage = async (message: string) => {
+    setLoading(true);
+
+    // Add user message to chat
+    setMessages((prev) => [...prev, { role: "user", content: message }]);
+
+    const result = await fetch("/api/ai-model", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: [...messages, { role: "user", content: message }],
+      }),
+    });
+
+    const header = result.body?.getReader();
+    const decorder = new TextDecoder();
+
+    let aiResponse = "";
+    let isCode = false;
+
+    while (true) {
+      const { done, value } = await header!.read();
+      if (done) break;
+
+      const chunk = decorder.decode(value, { stream: true });
+      aiResponse += chunk;
+
+      // Check if AI Start sending Code
+      if (!isCode && aiResponse.includes("```html")) {
+        isCode = true;
+        const index = aiResponse.indexOf("```html") + 7;
+        const initialCodeChunk = aiResponse.slice(index);
+        setGeneratedCode((prev) => prev + initialCodeChunk);
+      } else if (isCode) {
+        setGeneratedCode((prev) => prev + chunk);
+      }
+    }
+    // After Streaming End
+    if (!isCode) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: aiResponse },
+      ]);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Your code is ready!" },
+      ]);
+    }
+    setLoading(false);
+  };
 
   return (
     <div>
@@ -46,10 +98,7 @@ const Playground = (props: Props) => {
 
       <div className="flex">
         {/* ChatSection */}
-        <ChatSection
-          messages={frameDetail?.chatMessages ?? []}
-          onSend={SendMessage}
-        />
+        <ChatSection messages={messages ?? []} onSend={SendMessage} />
 
         {/* WebsiteDesign */}
         <WebsiteDesign />
