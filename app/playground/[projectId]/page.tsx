@@ -132,7 +132,11 @@ const Playground = (props: Props) => {
 
       <div className="flex">
         {/* ChatSection */}
-        <ChatSection messages={messages ?? []} onSend={SendMessage} />
+        <ChatSection
+          messages={messages ?? []}
+          onSend={SendMessage}
+          loading={loading}
+        />
 
         {/* WebsiteDesign */}
         <WebsiteDesign />
