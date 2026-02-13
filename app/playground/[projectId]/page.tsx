@@ -70,6 +70,12 @@ const Playground = (props: Props) => {
     );
     console.log(result.data);
     setFrameDetail(result.data);
+    if (result.data?.chatMessages?.length == 1) {
+      const userMsg = result.data.chatMessages[0].content;
+      SendMessage(userMsg);
+    } else {
+      setMessages(result.data?.chatMessages ?? []);
+    }
   };
 
   const SendMessage = async (message: string) => {
@@ -124,6 +130,20 @@ const Playground = (props: Props) => {
       ]);
     }
     setLoading(false);
+  };
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      SaveMessages();
+    }
+  }, [messages]);
+
+  const SaveMessages = async () => {
+    const result = await axios.put("/api/chats", {
+      messages: messages,
+      frameId: frameId,
+    });
+    console.log(result);
   };
 
   return (
