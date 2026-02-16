@@ -1,17 +1,20 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 type Props = {
   generatedCode: string;
 };
 
 function WebsiteDesign({ generatedCode }: Props) {
-  return (
-    <div className="p-5 flex-1 h-[91vh] overflow-auto">
-      <div
-        className=""
-        dangerouslySetInnerHTML={{
-          __html: `
-          <!DOCTYPE html>
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    if (!iframeRef.current) return;
+    const doc = iframeRef.current.contentDocument;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
           <html lang="en">
           <head>
               <meta charset="UTF-8">
@@ -53,9 +56,32 @@ function WebsiteDesign({ generatedCode }: Props) {
           </head>
           ${generatedCode}
           </html>
-          `,
-        }}
-      ></div>
+    `);
+    doc.close();
+  }, []);
+
+  useEffect(() => {
+    if (!iframeRef.current) return;
+    const doc = iframeRef.current.contentDocument;
+    if (!doc) return;
+
+    const root = doc.getElementById("root");
+    if (root) {
+      root.innerHTML =
+        generatedCode
+          ?.replaceAll("```html", "")
+          .replaceAll("```", "")
+          .replace("html", "") ?? "";
+    }
+  }, [generatedCode]);
+
+  return (
+    <div className="p-5 w-full">
+      <iframe
+        ref={iframeRef}
+        className="w-full h-[700px] border rounded"
+        sandbox="allow-scripts allow-same-origin"
+      />
     </div>
   );
 }
