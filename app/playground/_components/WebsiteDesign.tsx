@@ -89,6 +89,7 @@ function WebsiteDesign({ generatedCode }: Props) {
       <WebPageTools
         selectedScreenSize={selectedScreenSize}
         setSelectedScreenSize={setSelectedScreenSize}
+        generatedCode={generatedCode}
       />
     </div>
   );
