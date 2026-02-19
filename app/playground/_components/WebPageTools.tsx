@@ -1,6 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Monitor, SquareArrowOutUpRight, TabletSmartphone } from "lucide-react";
+import {
+  Code2Icon,
+  Download,
+  Monitor,
+  SquareArrowOutUpRight,
+  TabletSmartphone,
+} from "lucide-react";
+import ViewCodeBlock from "./ViewCodeBlock";
 
 type Props = {
   selectedScreenSize: "web" | "mobile";
@@ -58,7 +65,9 @@ const WebPageTools = ({
   setSelectedScreenSize,
   generatedCode,
 }: Props) => {
-  const ViewInNewTab = () => {
+  const [finalCode, setFinalCode] = useState<string>("");
+
+  useEffect(() => {
     if (!generatedCode) return;
 
     const cleanCode = (HTML_CODE.replace("{code}", generatedCode) || "")
@@ -66,7 +75,13 @@ const WebPageTools = ({
       .replaceAll("```", "")
       .replace("html", "");
 
-    const blob = new Blob([cleanCode], { type: "text/html" });
+    setFinalCode(cleanCode);
+  }, [generatedCode]);
+
+  const ViewInNewTab = () => {
+    if (!finalCode) return;
+
+    const blob = new Blob([finalCode ?? ""], { type: "text/html" });
     const url = URL.createObjectURL(blob);
 
     window.open(url, "_blank");
@@ -90,9 +105,17 @@ const WebPageTools = ({
           <TabletSmartphone />
         </Button>
       </div>
-      <div>
+      <div className="flex gap-2">
         <Button variant={"outline"} onClick={() => ViewInNewTab()}>
           View <SquareArrowOutUpRight />
+        </Button>
+        <ViewCodeBlock code={finalCode}>
+          <Button>
+            Code <Code2Icon />
+          </Button>
+        </ViewCodeBlock>
+        <Button>
+          Download <Download />
         </Button>
       </div>
     </div>
