@@ -10,6 +10,7 @@ import {
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
+import { toast } from "sonner";
 
 type Props = {
   children: ReactNode;
@@ -17,6 +18,10 @@ type Props = {
 };
 
 const ViewCodeBlock = ({ children, code }: Props) => {
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code);
+    toast.success("Code copied!");
+  };
   return (
     <Dialog>
       <DialogTrigger>{children}</DialogTrigger>
@@ -26,7 +31,7 @@ const ViewCodeBlock = ({ children, code }: Props) => {
             <div className="flex gap-4 items-center">
               Source Code{" "}
               <span>
-                <Button>
+                <Button onClick={handleCopy}>
                   <Copy />
                 </Button>
               </span>
