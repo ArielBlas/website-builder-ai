@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import WebPageTools from "./WebPageTools";
+import ElementSettingSection from "./ElementSettingSection";
 
 type Props = {
   generatedCode: string;
@@ -150,17 +151,22 @@ function WebsiteDesign({ generatedCode }: Props) {
   }, [generatedCode]);
 
   return (
-    <div className="p-5 w-full items-center flex-col">
-      <iframe
-        ref={iframeRef}
-        className={`${selectedScreenSize === "web" ? "w-full" : "w-130"} h-[600px] border-2 rounded-xl`}
-        sandbox="allow-scripts allow-same-origin"
-      />
-      <WebPageTools
-        selectedScreenSize={selectedScreenSize}
-        setSelectedScreenSize={setSelectedScreenSize}
-        generatedCode={generatedCode}
-      />
+    <div className="flex gap-2 w-full">
+      <div className="p-2 w-full flex items-center flex-col">
+        <iframe
+          ref={iframeRef}
+          className={`${selectedScreenSize === "web" ? "w-full" : "w-130"} h-[600px] border-2 rounded-xl`}
+          sandbox="allow-scripts allow-same-origin"
+        />
+        <WebPageTools
+          selectedScreenSize={selectedScreenSize}
+          setSelectedScreenSize={setSelectedScreenSize}
+          generatedCode={generatedCode}
+        />
+      </div>
+
+      {/* Setting section */}
+      <ElementSettingSection />
     </div>
   );
 }

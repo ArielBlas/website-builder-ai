@@ -184,9 +184,6 @@ const Playground = (props: Props) => {
 
         {/* WebsiteDesign */}
         <WebsiteDesign generatedCode={generatedCode?.replace("```", "")} />
-
-        {/* Setting section */}
-        <ElementSettingSection />
       </div>
     </div>
   );
