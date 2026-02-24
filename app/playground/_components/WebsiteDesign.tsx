@@ -54,6 +54,9 @@ function WebsiteDesign({ generatedCode }: Props) {
   const [selectedScreenSize, setSelectedScreenSize] = useState<
     "web" | "mobile"
   >("web");
+  const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
+    null,
+  );
 
   // Initialize iframe shell once
   useEffect(() => {
@@ -101,6 +104,7 @@ function WebsiteDesign({ generatedCode }: Props) {
       selectedEl.setAttribute("contenteditable", "true");
       selectedEl.focus();
       console.log("Selected element:", selectedEl);
+      setSelectedElement(selectedEl);
     };
 
     const handleBlur = () => {
@@ -166,7 +170,10 @@ function WebsiteDesign({ generatedCode }: Props) {
       </div>
 
       {/* Setting section */}
-      <ElementSettingSection />
+      <ElementSettingSection
+        selectedEl={selectedElement}
+        clearSelection={() => setSelectedElement(null)}
+      />
     </div>
   );
 }

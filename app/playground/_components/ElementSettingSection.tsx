@@ -9,9 +9,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type Props = {};
+type Props = {
+  selectedEl: HTMLElement | null;
+  clearSelection: () => void;
+};
 
-const ElementSettingSection = (props: Props) => {
+const ElementSettingSection = ({ selectedEl, clearSelection }: Props) => {
   return (
     <div className="w-96 shadow p-4">
       <h2 className="flex gap-2 items-center font-bold">
@@ -20,7 +23,7 @@ const ElementSettingSection = (props: Props) => {
 
       <label className="text-sm">Font Size</label>
 
-      <Select>
+      <Select defaultValue={selectedEl?.style?.fontSize || "24px"}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select Size" />
         </SelectTrigger>
