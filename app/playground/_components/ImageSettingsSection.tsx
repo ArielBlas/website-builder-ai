@@ -6,6 +6,7 @@ import {
   Expand,
   Image as ImageUpscale, // no lucide-react upscale, using Image icon
   ImageMinus,
+  Loader2Icon,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ImageKit from "imagekit";
 
 type Props = {
   selectedEl: HTMLImageElement;
@@ -27,10 +29,18 @@ const transformOptions = [
   { label: "BG Remove", value: "bgremove", icon: <ImageMinus /> },
 ];
 
+const imagekit = new ImageKit({
+  publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!,
+  privateKey: process.env.NEXT_PUBLIC_IMAGEKIT_PRIVATE_KEY!,
+  urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!,
+});
+
 function ImageSettingSection({ selectedEl }: Props) {
   const [altText, setAltText] = useState(selectedEl.alt || "");
   const [width, setWidth] = useState<number>(selectedEl.width || 300);
   const [height, setHeight] = useState<number>(selectedEl.height || 200);
+  const [selectedImage, setSelectedImage] = useState<File>();
+  const [loading, setLoading] = useState(false);
   const [borderRadius, setBorderRadius] = useState(
     selectedEl.style.borderRadius || "0px",
   );
@@ -48,11 +58,27 @@ function ImageSettingSection({ selectedEl }: Props) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const saveUploadedFile = async () => {
+    if (selectedImage) {
+      setLoading(true);
+      const imageRef = await imagekit.upload({
+        // @ts-ignore
+        file: selectedImage!,
+        fileName: Date.now() + ".png",
+        isPublished: true,
+      });
+
+      console.log(imageRef);
+      setLoading(false);
     }
   };
 
@@ -90,9 +116,10 @@ function ImageSettingSection({ selectedEl }: Props) {
         type="button"
         variant="outline"
         className="w-full"
-        onClick={openFileDialog}
+        onClick={saveUploadedFile}
+        disabled={loading}
       >
-        Upload Image
+        {loading && <Loader2Icon className="animate-spin" />} Upload Image
       </Button>
 
       {/* Alt text */}
