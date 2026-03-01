@@ -78,12 +78,21 @@ function ImageSettingSection({ selectedEl }: Props) {
       });
 
       console.log(imageRef);
+      // @ts-ignore
+      selectedEl.setAttribute("src", imageRef?.url);
       setLoading(false);
     }
   };
 
   const openFileDialog = () => {
     fileInputRef.current?.click();
+  };
+
+  const GenerateAIImage = () => {
+    setLoading(true);
+    const url = `https://ik.imagekit.io/arielblas/ik-genimg-prompt-${altText}/${Date.now()}.png`;
+    setPreview(url);
+    selectedEl.setAttribute("src", url);
   };
 
   return (
@@ -99,6 +108,7 @@ function ImageSettingSection({ selectedEl }: Props) {
           alt={altText}
           className="max-h-40 object-contain border rounded cursor-pointer hover:opacity-80"
           onClick={openFileDialog}
+          onLoad={() => setLoading(false)}
         />
       </div>
 
@@ -134,7 +144,9 @@ function ImageSettingSection({ selectedEl }: Props) {
         />
       </div>
 
-      <Button className="w-full">Generate AI Image</Button>
+      <Button className="w-full" onClick={GenerateAIImage} disabled={loading}>
+        {loading && <Loader2Icon className="animate-spin" />} Generate AI Image
+      </Button>
 
       {/* Transform Buttons */}
       <div>
