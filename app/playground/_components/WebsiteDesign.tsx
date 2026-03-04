@@ -1,7 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  cloneElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import WebPageTools from "./WebPageTools";
 import ElementSettingSection from "./ElementSettingSection";
 import ImageSettingSection from "./ImageSettingsSection";
+import { OnSaveContext } from "@/context/OnSaveContext";
+import { useParams, useSearchParams } from "next/navigation";
+import axios from "axios";
+import { toast } from "sonner";
 
 type Props = {
   generatedCode: string;
@@ -58,6 +68,10 @@ function WebsiteDesign({ generatedCode }: Props) {
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
     null,
   );
+  const { onSaveData, setOnSaveData } = useContext(OnSaveContext);
+  const { projectId } = useParams();
+  const params = useSearchParams();
+  const frameId = params.get("frameId");
 
   // Initialize iframe shell once
   useEffect(() => {
@@ -154,6 +168,42 @@ function WebsiteDesign({ generatedCode }: Props) {
           .replace("html", "") ?? "";
     }
   }, [generatedCode]);
+
+  useEffect(() => {
+    onSaveData && onSaveCode();
+  }, [onSaveData]);
+
+  const onSaveCode = async () => {
+    if (iframeRef.current) {
+      try {
+        const iframeDoc =
+          iframeRef.current.contentDocument ||
+          iframeRef.current.contentWindow?.document;
+        if (iframeDoc) {
+          const cloneDoc = iframeDoc.documentElement.cloneNode(
+            true,
+          ) as HTMLElement;
+          // Remove all Outlines
+          const AllEls = cloneDoc.querySelectorAll<HTMLElement>("*");
+          AllEls.forEach((el) => {
+            el.style.outline = "";
+            el.style.cursor = "";
+          });
+          const html = cloneDoc.outerHTML;
+
+          const result = await axios.put("/api/frames", {
+            designCode: html,
+            frameId: frameId,
+            projectId: projectId,
+          });
+          console.log(result.data);
+          toast.success("Saved!");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   return (
     <div className="flex gap-2 w-full">
