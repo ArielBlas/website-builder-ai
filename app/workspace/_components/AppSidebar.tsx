@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +13,7 @@ import Link from "next/link";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import { Progress } from "@/components/ui/progress";
 import { UserButton } from "@clerk/nextjs";
+import axios from "axios";
 
 type Props = {};
 
@@ -21,6 +22,16 @@ const AppSidebar = (props: Props) => {
     Array<{ id: string; name: string }>
   >([]);
   const [userDetail, setUserDetail] = useContext(UserDetailContext);
+
+  useEffect(() => {
+    GetProjectList();
+  }, []);
+
+  const GetProjectList = async () => {
+    const result = await axios.get("/api/get-all-projects");
+    console.log(result.data);
+    setProjectList(result.data);
+  };
 
   return (
     <Sidebar>

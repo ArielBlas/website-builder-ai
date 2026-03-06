@@ -2,7 +2,7 @@ import { db } from "@/config/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
-import { eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { chatTable, frameTable, projectTable } from "@/config/schema";
 export async function GET(req: NextRequest) {
   const user = await currentUser();
@@ -12,7 +12,9 @@ export async function GET(req: NextRequest) {
   const projects = await db
     .select()
     .from(projectTable)
-    .where(eq(projectTable.createdBy, user?.primaryEmailAddress?.emailAddress));
+    // @ts-ignore
+    .where(eq(projectTable.createdBy, user?.primaryEmailAddress?.emailAddress))
+    .orderBy(desc(projectTable.id));
 
   let results: {
     projectId: string;
