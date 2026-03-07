@@ -14,23 +14,25 @@ import { UserDetailContext } from "@/context/UserDetailContext";
 import { Progress } from "@/components/ui/progress";
 import { UserButton } from "@clerk/nextjs";
 import axios from "axios";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {};
 
 const AppSidebar = (props: Props) => {
-  const [projectList, setProjectList] = useState<
-    Array<{ id: string; name: string }>
-  >([]);
+  const [projectList, setProjectList] = useState<any[]>([]);
   const [userDetail, setUserDetail] = useContext(UserDetailContext);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     GetProjectList();
   }, []);
 
   const GetProjectList = async () => {
+    setLoading(true);
     const result = await axios.get("/api/get-all-projects");
     console.log(result.data);
     setProjectList(result.data);
+    setLoading(false);
   };
 
   return (
@@ -47,11 +49,31 @@ const AppSidebar = (props: Props) => {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
-          {projectList.length === 0 && (
+          {!loading && projectList.length === 0 && (
             <h2 className="text-sm px-2 text-gray-500">
               No projects available.
             </h2>
           )}
+          <div>
+            {!loading && projectList.length > 0
+              ? projectList.map((project, index) => (
+                  <Link
+                    href={`/playground/${project.projectId}?frameId=${project.framesId}`}
+                    key={index}
+                    className="my-2 hover:bg-secondary p-2 rounded-lg cursor-pointer"
+                  >
+                    <h2 className="line-clamp-1">
+                      {project?.chats[0].chatMessage[0]?.content}
+                    </h2>
+                  </Link>
+                ))
+              : [1, 2, 3, 4, 5].map((_, index) => (
+                  <Skeleton
+                    className="w-full h-10 rounded-lg mt-2 "
+                    key={index}
+                  />
+                ))}
+          </div>
         </SidebarGroup>
         <SidebarGroup />
       </SidebarContent>
