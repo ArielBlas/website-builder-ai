@@ -84,7 +84,9 @@ const AppSidebar = (props: Props) => {
             <span className="font-bold">{userDetail?.credits}</span>
           </h2>
           <Progress value={33} />
-          <Button className="w-full">Upgrade to Unlimited</Button>
+          <Link href="/workspace/ pricing" className="w-full">
+            <Button className="w-full">Upgrade to Unlimited</Button>
+          </Link>
         </div>
         <div className="flex items-center gap-2">
           <UserButton />
