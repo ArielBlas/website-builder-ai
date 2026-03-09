@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { SignInButton, useUser } from "@clerk/nextjs";
+import { UserDetailContext } from "@/context/UserDetailContext";
+import { SignInButton, useAuth, useUser } from "@clerk/nextjs";
 import axios from "axios";
 import {
   ArrowUp,
@@ -12,7 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
@@ -55,8 +56,17 @@ const Hero = (props: Props) => {
   const { user } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
+  const { has } = useAuth();
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+
+  const hasUnlimitedAccess = has && has({ plan: "unlimited" });
 
   const CreateNewProject = async () => {
+    if (!hasUnlimitedAccess && userDetail?.credits! <= 0) {
+      toast.error("You don't have enough credits to create a new project.");
+      return;
+    }
+
     setLoading(true);
     const projectId = uuidv4();
     const frameId = generateRandomFrameNumber();

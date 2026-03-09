@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import { Progress } from "@/components/ui/progress";
-import { UserButton } from "@clerk/nextjs";
+import { useAuth, UserButton } from "@clerk/nextjs";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -22,10 +22,13 @@ const AppSidebar = (props: Props) => {
   const [projectList, setProjectList] = useState<any[]>([]);
   const [userDetail, setUserDetail] = useContext(UserDetailContext);
   const [loading, setLoading] = useState<boolean>(false);
+  const { has } = useAuth();
 
   useEffect(() => {
     GetProjectList();
   }, []);
+
+  const hasUnlimitedAccess = has && has({ plan: "unlimited" });
 
   const GetProjectList = async () => {
     setLoading(true);
@@ -78,16 +81,18 @@ const AppSidebar = (props: Props) => {
         <SidebarGroup />
       </SidebarContent>
       <SidebarFooter className="p-2">
-        <div className="p-3 border rounded-xl space-y-3 bg-secondary">
-          <h2 className="flex justify-between items-center">
-            Remaining Credits{" "}
-            <span className="font-bold">{userDetail?.credits}</span>
-          </h2>
-          <Progress value={33} />
-          <Link href="/workspace/ pricing" className="w-full">
-            <Button className="w-full">Upgrade to Unlimited</Button>
-          </Link>
-        </div>
+        {!hasUnlimitedAccess && (
+          <div className="p-3 border rounded-xl space-y-3 bg-secondary">
+            <h2 className="flex justify-between items-center">
+              Remaining Credits{" "}
+              <span className="font-bold">{userDetail?.credits}</span>
+            </h2>
+            <Progress value={33} />
+            <Link href="/workspace/ pricing" className="w-full">
+              <Button className="w-full">Upgrade to Unlimited</Button>
+            </Link>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <UserButton />
           <Button variant={"ghost"}>Settings</Button>
