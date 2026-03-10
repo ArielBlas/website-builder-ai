@@ -87,7 +87,7 @@ const AppSidebar = (props: Props) => {
               Remaining Credits{" "}
               <span className="font-bold">{userDetail?.credits}</span>
             </h2>
-            <Progress value={33} />
+            <Progress value={(userDetail?.credits / 2) * 100} />
             <Link href="/workspace/ pricing" className="w-full">
               <Button className="w-full">Upgrade to Unlimited</Button>
             </Link>

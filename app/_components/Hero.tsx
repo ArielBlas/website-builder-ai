@@ -81,11 +81,16 @@ const Hero = (props: Props) => {
         projectId: projectId,
         frameId: frameId,
         messages: messages,
+        credits: userDetail?.credits,
       });
       console.log(result.data);
       toast.success("Project created!");
       // Navigate to Playground
       router.push(`/playground/${projectId}?frameId=${frameId}`);
+      setUserDetail((prev: any) => ({
+        ...prev,
+        credits: prev?.credits! - 1,
+      }));
     } catch (error) {
       toast.error("Internal Server Error");
       console.log(error);
